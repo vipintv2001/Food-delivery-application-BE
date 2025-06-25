@@ -2,7 +2,7 @@ const users = require("../models/userSchema");
 const restaurents = require("../models/restaurentSchema");
 const staffs = require("../models/staffSchema");
 const jwt = require("jsonwebtoken");
-const orders = require("../models/orderSchema")
+const orders = require("../models/orderSchema");
 
 exports.registerUser = async (req, res) => {
   console.log("inside register user");
@@ -90,7 +90,7 @@ exports.getCustomerDetails = async (req, res) => {
 
 exports.addToCart = async (req, res) => {
   console.log("inside add to cart");
-  console.log("restaurent ID:", req.body.userId);
+  console.log("restaurent ID:", req.body);
   const product = req.body;
   const userId = req.payload;
   console.log("id:", userId);
@@ -104,7 +104,11 @@ exports.addToCart = async (req, res) => {
     if (existing) {
       existing.quantity += 1;
     } else {
-      currentUser.cart.push({ ...product, quantity: 1,restaurentId:product.userId });
+      currentUser.cart.push({
+        ...product,
+        quantity: 1,
+        restaurentId: product.userId ?? product.restaurentId,
+      });
     }
 
     await currentUser.save();
@@ -148,6 +152,53 @@ exports.editCartDetails = async (req, res) => {
   }
 };
 
+exports.deleteCartItem = async (req, res) => {
+  console.log("inside delete cart item");
+  const userId = req.payload;
+  const { id } = req.params;
+  console.log("productId=", id);
+  try {
+    const result = await users.updateOne(
+      { _id: userId },
+      { $pull: { cart: { _id: id } } }
+    );
+
+    if (result.modifiedCount > 0) {
+      res.status(200).json("deleted item succesfully");
+    }else{
+      res.status(400).json("cart item not found")
+    }
+  } catch (err) {
+    console.log("error",err)
+    res.status(401).json("something went wrong")
+  }
+};
+
+exports.deleteCart = async (req,res)=>{
+  console.log("inside delete cart item");
+  const userId = req.payload;
+  try {
+    const result = await users.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          cart: [],
+          cartSummary: [],
+        },
+      }
+    );
+
+    if (result.modifiedCount > 0) {
+      res.status(200).json({ message: "Cart cleared successfully" });
+    } else {
+      res.status(401).json({ message: "No changes made or user not found" });
+    }
+  } catch (err) {
+    console.error("Error clearing cart:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 exports.getUserDetails = async (req, res) => {
   console.log("inside get user Details Api");
   const userId = req.payload;
@@ -156,13 +207,23 @@ exports.getUserDetails = async (req, res) => {
   res.status(200).json(userDetails);
 };
 
-exports.setOrderConfirm = async (req,res)=>{
+exports.setOrderConfirm = async (req, res) => {
   console.log("inside set order confirm");
   const userId = req.payload;
-  console.log("reqbody",req.body);
-  const {house, street, postOffice, pincode, city, landmark,delicharge,totalPrice} = req.body;
+  console.log("reqbody", req.body);
+  const {
+    house,
+    street,
+    postOffice,
+    pincode,
+    city,
+    landmark,
+    deliCharge,
+    totalPrice,
+    paymentStatus,
+  } = req.body;
   const userDetails = await users.findById(userId);
-  console.log("cart Details",userDetails.cart);
+  console.log("cart Details", userDetails.cart);
   console.log("cartSummary Details", userDetails.cartSummary);
 
   const address = {
@@ -173,25 +234,24 @@ exports.setOrderConfirm = async (req,res)=>{
     postOffice: postOffice,
     pinCode: pincode,
     landMark: landmark,
-    city:city ,
+    city: city,
   };
 
-  try{
+  try {
     const newOrder = new orders({
       userId,
-      cart:userDetails.cart,
-      cartSummary:userDetails.cartSummary,
-      deliveryCharge:delicharge,
-      totalPrice:totalPrice,
-      address:address,
-      paymentStatus:"cod",
-      deliveryStatus:"processing"
-    })
+      cart: userDetails.cart,
+      cartSummary: userDetails.cartSummary,
+      deliveryCharge: deliCharge,
+      totalPrice: totalPrice,
+      address: address,
+      paymentStatus: paymentStatus,
+      deliveryStatus: "processing",
+    });
     await newOrder.save();
-    res.status(201).json(newOrder)
-  }catch(err){
+    res.status(201).json(newOrder);
+  } catch (err) {
     console.log(err);
-    res.status(401).json("something went wrong")
+    res.status(401).json("something went wrong");
   }
-
-}
+};

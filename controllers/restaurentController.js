@@ -73,4 +73,16 @@ exports.getAboutRestaurent = async (req,res)=>{
     }
 }
 
+exports.deleteRestaurent = async (req,res)=>{
+  console.log("inside delete restaurent")
+  const {id} = req.params;
+  try{
+    const deletedRestaurent = await restaurents.findByIdAndDelete(id);
+    res.status(201).json(deletedRestaurent);
+  }
+  catch(err){
+    res.status(401).json(err)
+  }
+}
+
 

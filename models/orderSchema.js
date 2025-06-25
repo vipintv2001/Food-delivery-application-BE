@@ -4,7 +4,7 @@ const addressSchema = require('./addressSchema')
 
 const orderSchema = new mongoose.Schema({
   userId: { type: String },
-  deliveryBoyId:{type:String},
+  deliveryBoy:{type:String},
   cart: [cartSchema],
   cartSummary:[cartSummarySchema],
   deliveryCharge: { type: Number },

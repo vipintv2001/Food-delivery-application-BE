@@ -25,10 +25,14 @@ const productSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  userId: {
+  restaurentId: {
     type: String,
     required: true,
   },
+  restaurentName:{
+    type:String,
+    required:true
+  }
 });
 
 const products = mongoose.model('products',productSchema);

@@ -34,6 +34,18 @@ exports.getAllStaffs = async (req, res) => {
     res.status(201).json(allStaffs);
   } catch (err) {
     console.log(err);
-    res.status(401).json("something went wrong")
+    res.status(401).json("something went wrong");
+  }
+};
+
+exports.setWorkStatus = async (req, res) => {
+  console.log("inside set work status");
+  const { workstatus, workActivity } = req.body;
+  const staffId = req.payload;
+  try {
+    const updatedStaff = await staffs.findByIdAndUpdate(staffId,{workActivity,workstatus},{new:true})
+    res.status(201).json(updatedStaff)
+  } catch (error) {
+    res.status(401).json(error)
   }
 };

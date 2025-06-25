@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const restaurents = require("./restaurentSchema");
+const addressSchema = require("./addressSchema")
 
 const cartSchema = new mongoose.Schema({
   productName: {
@@ -29,6 +30,9 @@ const cartSchema = new mongoose.Schema({
   restaurentId: {
     type: String,
   },
+  restaurentName: {
+    type: String,
+  },
 });
 
 const cartSummarySchema = new mongoose.Schema({
@@ -46,8 +50,14 @@ const cartSummarySchema = new mongoose.Schema({
   },
   restaurentId: {
     type: String,
-    required: true,
   },
+  totalPrice: {
+    type: Number,
+  },
+  deliveryCharge: {
+    type: Number,
+  },
+  address: addressSchema
 });
 
 module.exports = { cartSchema, cartSummarySchema };
