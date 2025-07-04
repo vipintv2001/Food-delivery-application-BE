@@ -22,15 +22,15 @@ exports.getRestaurentOrders = async (req, res) => {
   }
 };
 
-exports.getAllOrders = async (req,res)=>{
+exports.getAllOrders = async (req, res) => {
   console.log("inside get all order");
   try {
-    const allOrders = await orders.find().sort({ createdAt: -1 });;
-    res.status(200).json(allOrders)
+    const allOrders = await orders.find().sort({ createdAt: -1 });
+    res.status(200).json(allOrders);
   } catch (error) {
-    res.status(401).json(error)
+    res.status(401).json(error);
   }
-}
+};
 
 exports.cancellOrder = async (req, res) => {
   console.log("inside cancell order");
@@ -46,17 +46,84 @@ exports.cancellOrder = async (req, res) => {
   }
 };
 
-exports.claimOrder = async (req,res) => {
+exports.claimOrder = async (req, res) => {
   console.log("inside claim order");
   const staffId = req.payload;
-  const {id} =req.params;
+  const { id } = req.params;
   try {
-    const staffDetails = await staffs.findById(staffId)
-    const claimedOrder = await orders.findByIdAndUpdate(id,{deliveryBoy:staffDetails.staffName},{new:true})
-    res.status(201).json(claimedOrder)
-    await staffs.findByIdAndUpdate(staffId,{workActivity:"On a Delivery"},{new:true})
+    const staffDetails = await staffs.findById(staffId);
+    const claimedOrder = await orders.findByIdAndUpdate(
+      id,
+      { deliveryBoy: staffDetails.staffName },
+      { new: true }
+    );
+    res.status(201).json(claimedOrder);
+    await staffs.findByIdAndUpdate(
+      staffId,
+      { workActivity: "on a delivery" },
+      { new: true }
+    );
   } catch (error) {
-    console.log(error)
-    res.status(401).json(error)
+    console.log(error);
+    res.status(401).json(error);
   }
-}
+};
+
+exports.getMyOrder = async (req, res) => {
+  console.log("inside get my order");
+  const staffId = req.payload;
+  try {
+    const staffDetails = await staffs.findById(staffId);
+    const staffName = staffDetails.staffName;
+    const myOrder = await orders.find({
+      deliveryBoy: staffName,
+      deliveryStatus: { $ne: "cancelled" }, // Exclude cancelled
+      $or: [{ deliveryStatus: { $ne: "delivered" } }, { paymentStatus: "cod" }],
+    });
+    res.status(200).json(myOrder);
+  } catch (error) {
+    console.log("error", error);
+    res.status(401).json(error);
+  }
+};
+
+exports.changeDeliveryStatus = async (req, res) => {
+  console.log("inside change delivery status");
+  const staffId = req.payload;
+  const { id } = req.params;
+  console.log("order id:", id);
+  console.log("req.body", req.body);
+  try {
+    const updatedOrder = await orders.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.status(200).json(updatedOrder);
+    if (
+      updatedOrder.deliveryStatus === "delivered" ||
+      updatedOrder.deliveryStatus === "cancelled"
+    ) {
+      await staffs.findByIdAndUpdate(
+        staffId,
+        { workActivity: "available" },
+        { new: true }
+      );
+    }
+  } catch (error) {
+    res.status(401).json(error);
+  }
+};
+
+exports.changePaymentStatus = async (req, res) => {
+  console.log("inside change payment status");
+  const { id } = req.params;
+  console.log("order id:", id);
+  console.log("req.body", req.body);
+  try {
+    const updatedOrder = await orders.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.status(200).json(updatedOrder);
+  } catch (error) {
+    res.status(401).json(error);
+  }
+};

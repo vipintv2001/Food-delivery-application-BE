@@ -41,6 +41,7 @@ exports.getAllStaffs = async (req, res) => {
 exports.setWorkStatus = async (req, res) => {
   console.log("inside set work status");
   const { workstatus, workActivity } = req.body;
+  console.log(workstatus,workActivity)
   const staffId = req.payload;
   try {
     const updatedStaff = await staffs.findByIdAndUpdate(staffId,{workActivity,workstatus},{new:true})

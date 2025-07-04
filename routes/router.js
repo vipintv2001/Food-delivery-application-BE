@@ -87,4 +87,18 @@ router.put("/staff/work/edit", jwtMiddleware, staffController.setWorkStatus);
 
 router.put("/staff/order/claim/:id", jwtMiddleware, orderController.claimOrder);
 
+router.get("/staff/myorder/get", jwtMiddleware, orderController.getMyOrder);
+
+router.put(
+  "/staff/myorder/edit/deliverystatus/:id",
+  jwtMiddleware,
+  orderController.changeDeliveryStatus
+);
+
+router.put(
+  "/staff/myorder/edit/paymentstatus/:id",
+  jwtMiddleware,
+  orderController.changePaymentStatus
+);
+
 module.exports = router;
