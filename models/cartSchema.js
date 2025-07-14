@@ -57,7 +57,10 @@ const cartSummarySchema = new mongoose.Schema({
   deliveryCharge: {
     type: Number,
   },
-  address: addressSchema
+  address: addressSchema,
+  estimatedTime: {
+    type: Number,
+  },
 });
 
 module.exports = { cartSchema, cartSummarySchema };

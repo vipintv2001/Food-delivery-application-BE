@@ -6,12 +6,18 @@ const staffController = require("../controllers/staffController");
 const jwtMiddleware = require("../middlewares/jwtMiddleware");
 const productController = require("../controllers/productController");
 const orderController = require("../controllers/orderController");
+const multerConfig = require("../middlewares/multermiddleware")
+const reviewController = require('../controllers/reviewController')
 
 router.post("/user/register", userCOntroller.registerUser);
 
 router.post("/user/login", userCOntroller.loginUser);
 
-router.post("/admin/addrestaurent", restaurentController.addRestaurent);
+router.post(
+  "/admin/addrestaurent",jwtMiddleware,
+  multerConfig.single('resImage'),
+  restaurentController.addRestaurent
+);
 
 router.get("/user/getrestaurent", restaurentController.getRestaurent);
 
@@ -100,5 +106,9 @@ router.put(
   jwtMiddleware,
   orderController.changePaymentStatus
 );
+
+router.post("/user/review/submit",jwtMiddleware,reviewController.addReview);
+
+router.get("/restaurent/review/get/:id",reviewController.getReview);
 
 module.exports = router;

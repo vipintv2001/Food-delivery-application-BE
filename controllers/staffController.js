@@ -30,7 +30,7 @@ exports.registerStaff = async (req, res) => {
 exports.getAllStaffs = async (req, res) => {
   console.log("inside get all staffs");
   try {
-    const allStaffs = await staffs.find();
+    const allStaffs = await staffs.find().sort({workstatus:-1});
     res.status(201).json(allStaffs);
   } catch (err) {
     console.log(err);

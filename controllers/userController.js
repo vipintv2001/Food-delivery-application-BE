@@ -204,7 +204,12 @@ exports.getUserDetails = async (req, res) => {
   const userId = req.payload;
   const userDetails = await users.findById(userId);
   console.log(userDetails);
-  res.status(200).json(userDetails);
+  console.log("restaurent:",userDetails.cartSummary[0].restaurentId)
+  const restaurentDetails = await restaurents.findById(
+    userDetails.cartSummary[0].restaurentId
+  );
+
+  res.status(200).json({userDetails,restaurentDetails});
 };
 
 exports.setOrderConfirm = async (req, res) => {
@@ -221,6 +226,7 @@ exports.setOrderConfirm = async (req, res) => {
     deliCharge,
     totalPrice,
     paymentStatus,
+    duration
   } = req.body;
   const userDetails = await users.findById(userId);
   console.log("cart Details", userDetails.cart);
@@ -247,6 +253,7 @@ exports.setOrderConfirm = async (req, res) => {
       address: address,
       paymentStatus: paymentStatus,
       deliveryStatus: "processing",
+      estimatedTime:duration
     });
     await newOrder.save();
     res.status(201).json(newOrder);

@@ -30,7 +30,7 @@ const restaurentSchema = new mongoose.Schema({
       "MultiCuisine",
       "bakery",
       "fast food",
-      "cafe",
+      "Cafe",
     ],
     default: [],
     required: true,
@@ -57,6 +57,10 @@ const restaurentSchema = new mongoose.Schema({
     required: true,
   },
   password: {
+    type: String,
+    required: true,
+  },
+  email: {
     type: String,
     required: true,
   },

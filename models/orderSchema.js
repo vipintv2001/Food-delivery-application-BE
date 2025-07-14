@@ -11,7 +11,8 @@ const orderSchema = new mongoose.Schema({
   totalPrice: { type: Number },
   address:addressSchema,
   paymentStatus:{type:String},
-  deliveryStatus:{type:String}
+  deliveryStatus:{type:String},
+  estimatedTime:{type:Number}
 },{ timestamps: true });
 
 const orders = mongoose.model('orders',orderSchema)

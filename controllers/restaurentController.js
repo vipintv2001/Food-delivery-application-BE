@@ -5,7 +5,6 @@ exports.addRestaurent = async (req, res) => {
   console.log(req.body);
   const {
     name,
-    resImage,
     description,
     categories,
     foodTypes,
@@ -15,7 +14,14 @@ exports.addRestaurent = async (req, res) => {
     longitude,
     password,
     cardDescription,
+    email
   } = req.body;
+  const resImage = req.file.filename;
+
+  const foodTypeArray =
+    typeof foodTypes === "string" ? foodTypes.split(",") : foodTypes;
+  const categoryArray =
+    typeof categories === "string" ? categories.split(",") : categories;
 
   try {
     const existingRestaurent = await restaurents.findOne({
@@ -29,14 +35,15 @@ exports.addRestaurent = async (req, res) => {
         restaurentName: name,
         restaurentImage: resImage,
         description: description,
-        categories: categories,
-        foodTypes: foodTypes,
+        categories: categoryArray,
+        foodTypes: foodTypeArray,
         openingHours: openingHours,
         location: location,
         lattitude: lattitude,
         longitude: longitude,
         password: password,
         cardDescription: cardDescription,
+        email:email
       });
       await newRestaurent.save();
       res.status(201).json("new Restaurent added succesfully");
