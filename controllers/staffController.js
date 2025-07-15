@@ -29,8 +29,18 @@ exports.registerStaff = async (req, res) => {
 
 exports.getAllStaffs = async (req, res) => {
   console.log("inside get all staffs");
+  const userSearchKey = req.query.search;
+  console.log(userSearchKey);
+  const query = userSearchKey
+    ? {
+        staffName: {
+          $regex: userSearchKey,
+          $options: "i",
+        },
+      }
+    : {};
   try {
-    const allStaffs = await staffs.find().sort({workstatus:-1});
+    const allStaffs = await staffs.find(query).sort({ workstatus: -1 });
     res.status(201).json(allStaffs);
   } catch (err) {
     console.log(err);
@@ -41,12 +51,16 @@ exports.getAllStaffs = async (req, res) => {
 exports.setWorkStatus = async (req, res) => {
   console.log("inside set work status");
   const { workstatus, workActivity } = req.body;
-  console.log(workstatus,workActivity)
+  console.log(workstatus, workActivity);
   const staffId = req.payload;
   try {
-    const updatedStaff = await staffs.findByIdAndUpdate(staffId,{workActivity,workstatus},{new:true})
-    res.status(201).json(updatedStaff)
+    const updatedStaff = await staffs.findByIdAndUpdate(
+      staffId,
+      { workActivity, workstatus },
+      { new: true }
+    );
+    res.status(201).json(updatedStaff);
   } catch (error) {
-    res.status(401).json(error)
+    res.status(401).json(error);
   }
 };

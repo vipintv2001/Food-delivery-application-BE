@@ -79,8 +79,17 @@ exports.loginUser = async (req, res) => {
 };
 
 exports.getCustomerDetails = async (req, res) => {
+  const userSearchKey = req.query.search;
+  const query = userSearchKey
+    ? {
+        name: {
+          $regex: userSearchKey,
+          $options: "i",
+        },
+      }
+    : {};
   try {
-    const customerDetails = await users.find();
+    const customerDetails = await users.find(query);
     res.status(200).json(customerDetails);
   } catch (err) {
     res.status(401).json("something went wrong");
@@ -165,16 +174,16 @@ exports.deleteCartItem = async (req, res) => {
 
     if (result.modifiedCount > 0) {
       res.status(200).json("deleted item succesfully");
-    }else{
-      res.status(400).json("cart item not found")
+    } else {
+      res.status(400).json("cart item not found");
     }
   } catch (err) {
-    console.log("error",err)
-    res.status(401).json("something went wrong")
+    console.log("error", err);
+    res.status(401).json("something went wrong");
   }
 };
 
-exports.deleteCart = async (req,res)=>{
+exports.deleteCart = async (req, res) => {
   console.log("inside delete cart item");
   const userId = req.payload;
   try {
@@ -197,19 +206,19 @@ exports.deleteCart = async (req,res)=>{
     console.error("Error clearing cart:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
 
 exports.getUserDetails = async (req, res) => {
   console.log("inside get user Details Api");
   const userId = req.payload;
   const userDetails = await users.findById(userId);
   console.log(userDetails);
-  console.log("restaurent:",userDetails.cartSummary[0].restaurentId)
+  console.log("restaurent:", userDetails.cartSummary[0].restaurentId);
   const restaurentDetails = await restaurents.findById(
     userDetails.cartSummary[0].restaurentId
   );
 
-  res.status(200).json({userDetails,restaurentDetails});
+  res.status(200).json({ userDetails, restaurentDetails });
 };
 
 exports.setOrderConfirm = async (req, res) => {
@@ -226,7 +235,7 @@ exports.setOrderConfirm = async (req, res) => {
     deliCharge,
     totalPrice,
     paymentStatus,
-    duration
+    duration,
   } = req.body;
   const userDetails = await users.findById(userId);
   console.log("cart Details", userDetails.cart);
@@ -253,7 +262,7 @@ exports.setOrderConfirm = async (req, res) => {
       address: address,
       paymentStatus: paymentStatus,
       deliveryStatus: "processing",
-      estimatedTime:duration
+      estimatedTime: duration,
     });
     await newOrder.save();
     res.status(201).json(newOrder);
